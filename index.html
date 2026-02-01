@@ -1,1 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+
+<meta charset="UTF-8">
+<title>Community Forum</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6fb;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .forum-container {
+        max-width: 900px;
+        margin: auto;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        padding: 20px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .new-post {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .new-post input,
+    .new-post textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        resize: none;
+    }
+
+    .new-post button {
+        background: #4f46e5;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 16px;
+        cursor: pointer;
+    }
+
+    .post {
+        border-top: 1px solid #eee;
+        padding: 15px 0;
+    }
+
+    .post h3 {
+        margin: 0;
+        color: #333;
+    }
+
+    .post p {
+        margin: 8px 0;
+        color: #555;
+    }
+
+    .reply {
+        margin-left: 20px;
+        margin-top: 10px;
+        padding-left: 10px;
+        border-left: 3px solid #e0e7ff;
+    }
+
+    .reply-input {
+        margin-top: 10px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .reply-input input {
+        flex: 1;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+    .reply-input button {
+        background: #6366f1;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 14px;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div class="forum-container">
+    <h1>💬 Community Forum</h1>
+
+    <div class="new-post">
+        <input id="title" placeholder="Post title">
+        <textarea id="content" placeholder="Write something..." rows="2"></textarea>
+        <button onclick="addPost()">Post</button>
+    </div>
+
+    <div id="posts"></div>
+</div>
+
+<script>
+let posts = JSON.parse(localStorage.getItem("forumPosts")) || [];
+
+function savePosts() {
+    localStorage.setItem("forumPosts", JSON.stringify(posts));
+}
+
+function addPost() {
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+
+    if (!title || !content) return;
+
+    posts.push({ title, content, replies: [] });
+    savePosts();
+    renderPosts();
+
+    document.getElementById("title").value = "";
+    document.getElementById("content").value = "";
+}
+
+function addReply(index, inputId) {
+    const text = document.getElementById(inputId).value;
+    if (!text) return;
+
+    posts[index].replies.push(text);
+    savePosts();
+    renderPosts();
+}
+
+function renderPosts() {
+    const container = document.getElementById("posts");
+    container.innerHTML = "";
+
+    posts.forEach((post, index) => {
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
+
+        postDiv.innerHTML = `
+            <h3>${post.title}</h3>
+            <p>${post.content}</p>
+
+            ${post.replies.map(r => `<div class="reply">${r}</div>`).join("")}
+
+            <div class="reply-input">
+                <input id="reply-${index}" placeholder="Reply...">
+                <button onclick="addReply(${index}, 'reply-${index}')">Reply</button>
+            </div>
+        `;
+
+        container.appendChild(postDiv);
+    });
+}
+
+renderPosts();
+</script>
+
+</body>
+</html>
 
